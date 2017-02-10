@@ -16,12 +16,18 @@ object MatrixCalculator {
   
   // returns the sum of the diagonal entries of a matrix
   def trace(m: Array[Array[Int]]): Int = {
-    return 0
+    var x: Int = 0
+    var sum: Int = 0
+    for(x <- 0 to m.length - 1){
+      sum += m(x)(x)
+      println("sum: " + sum + " current adder: " + m(x)(x))
+    }
+    return sum
   }
   
   // returns a dim x dim matrix with i/j entry = 3 * i + 2 * j % cap
   def makeArray(dim: Int, cap: Int = 100): Array[Array[Int]] = {
-    var matrix = Array.ofDim[Int](dim, dim)
+    var matrix: Array[Array[Int]] = Array.ofDim[Int](dim, dim)
     var x = 0
     var y = 0
     val bound = dim - 1
