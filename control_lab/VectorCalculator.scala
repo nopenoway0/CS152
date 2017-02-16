@@ -1,16 +1,16 @@
 object VectorCalculator {
   
-  def add(v1: Array[Int], v2: Array[Int]): Array[Int] = {
+  def add(v1: Array[Int], v2: Array[Int]) = {
     var sum = v1.zip(v2).map {case (a,b) => a + b}
-    return sum
+    sum
   }
   
-  def dot(v1: Array[Int], v2: Array[Int]): Int = {
+  def dot(v1: Array[Int], v2: Array[Int]) = {
     var x = 0
     var y = 0
     var dot: Int = 0
     v1.zip(v2).map {case (a,b) => dot = dot + a*b}
-    return dot
+    dot
   }
   
   def toString(v: Array[Int]) = {
