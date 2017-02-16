@@ -1,42 +1,41 @@
 object Calculator {
 
    // = 1 * 2 * 3 * ... * n
-   def fact(n: Integer): Int = {
+   def fact(n: Integer) = {
     var base_fact = n
     var sum = 1
     while(base_fact > 1){
       sum = sum * base_fact
       base_fact = base_fact - 1
     }
-    return sum
+    sum
     }
    
    // = 1 + 2 + 3 + ... + n
-   def tri(n: Integer): Int = {
-    if(n > 1){
-      return n + tri(n - 1)
-    }
-    else return 1
+   def tri(n: Integer) = {
+    var sum = 0
+    var x  = 0
+    for(x <- 0 to n) sum += x
+    sum
    }
    
    // = 2^n
-   def exp(n: Integer): Int = {
+   def exp(n: Integer) = {
       val base = 2
       var product = 1
       var x = 0
       for(a <- 1 to n) product = product * base
-      return product
+      product
     }
    
-   // = true if n >= 2 and has no smaller divisors
-   def isPrime(n: Integer): Boolean = {
+   // = true if n >= 2 and has no smaller dcivisors
+   def isPrime(n: Integer) = {
     var x = 0
-    if(n == 1) return false
-    if(n == 2 || n == 3) return true
-    for(x <- 2 to n - 1){
-      if(n % x == 0) return false
+    var result = if(n == 1 || n == 0) false else true
+    for(x <- 2 until n){
+      if(n % x == 0 && n != 0) result = false
     }
-    return true
+    result
    }
    
    def main(args: Array[String]): Unit = {
