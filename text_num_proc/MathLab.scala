@@ -3,6 +3,7 @@
 // 
 
 import scala.math._
+import scala.util.Random
 
 object MathLab{
 
@@ -19,6 +20,10 @@ object MathLab{
 		println(isPrime(2))
 		println(isPrime(3))
 		println(isPrime(8))
+
+		println(rollDice)
+		println(rollDice)
+		println(rollDice)
 	}
 
 	//***********************************
@@ -60,5 +65,25 @@ object MathLab{
 		result
 	}
 	//***********************************
+
+	//***********************************
+	// Problem 7
+	//***********************************
+	def phi(in: Int) = {
+		def gcd(n1: Int, n2: Int) = {
+			
+		}
+	}
+	//***********************************
+
+	//***********************************
+	// Problem 8
+	//***********************************
+	def rollDice = {
+		val seed = new Random
+		(seed.nextInt(6), seed.nextInt(6))
+	}
+	//***********************************
+
 
 }
