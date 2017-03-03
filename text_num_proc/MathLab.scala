@@ -3,22 +3,37 @@
 // 
 
 import scala.math._
+import scala.util.Random
 
 object MathLab{
 
 	def main(args: Array[String]): Unit = {
-		println(solve(2, -2, -4))
-		println(solve(1, 0, 1))
-		println(solve(1, 0, -1))
-		println(dist((1, 1), (0, 0)))
-		println(dist((3, 0), (0, 0)))
-		println(dot((2.0, 3, 4), (2, 2.0, 2)))
+		println("\nSolve Tests")
+		println("solve(2, -2, -4): " + solve(2, -2, -4))
+		println("solve(1, 0, 1): " + solve(1, 0, 1))
+		println("solve(1, 0, -1): " + solve(1, 0, -1))
 
-		println(isPrime(0))
-		println(isPrime(1))
-		println(isPrime(2))
-		println(isPrime(3))
-		println(isPrime(8))
+		println("\nDist Tests")
+		println("Dist((1,1), (0,0)): " + dist((1, 1), (0, 0)))
+		println("Dist((3,0), (0,0)): " + dist((3, 0), (0, 0)))
+		
+		println("\nDots Tests")
+		println("dot((2.0, 3, 4), (2, 2.0, 2))" + dot((2.0, 3, 4), (2, 2.0, 2)))
+
+		println("\nPrime Tests")
+		println("isPrime(0): " +  isPrime(0))
+		println("isPrime(1): " + isPrime(1))
+		println("isPrime(2): " + isPrime(2))
+		println("isPrime(3): " + isPrime(3))
+		println("isPrime(8): " + isPrime(8))
+
+		println("\nPhi Tests")
+		println("Phi(9): " + phi(9))
+
+		println("\nDice Tests")
+		println(rollDice)
+		println(rollDice)
+		println(rollDice)
 	}
 
 	//***********************************
@@ -60,5 +75,36 @@ object MathLab{
 		result
 	}
 	//***********************************
+
+	//***********************************
+	// Problem 7
+	//***********************************
+	def phi(in: Int) = {
+
+		// Helper to find gcd of number
+		def gcd(n1: Int, n2: Int) = {
+			var gcd = 1
+			for(x <- 2 until n1) if(n1 % x == 0 && n2 % x == 0 && x > gcd) gcd = x
+			gcd
+		}
+
+
+		var count = 0
+		for(x <- 2 until in){
+			if(gcd(x, in) == 1) count += 1
+		}
+		count
+	}
+	//***********************************
+
+	//***********************************
+	// Problem 8
+	//***********************************
+	def rollDice = {
+		val seed = new Random
+		(seed.nextInt(6), seed.nextInt(6))
+	}
+	//***********************************
+
 
 }
