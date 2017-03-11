@@ -16,9 +16,9 @@ read var stores input into var
 print response prints var to console
  */
 
-//package amoeba
-
 import scala.collection.mutable.HashMap
+import amoeba.Environment
+import amoeba.Variable
 
 object processor {
   
@@ -29,7 +29,15 @@ object processor {
   val labels = new HashMap[String, Int]
   
   def preProcess(fileName: String) {
-    program = io.Source.fromFile(fileName).getLines.toArray
+
+    // useless just for testing
+    try{
+      program = io.Source.fromFile(fileName).getLines.toArray
+    }catch{
+      case e: Exception => println("\n" + e.getMessage())
+      throw new Exception(e.getMessage())
+    }
+
     for(i <- 0 until program.length) {
       if (!program(i).isEmpty()) {
          ir = program(i).split("\\s+")
@@ -45,20 +53,44 @@ object processor {
   def fetchExecute() {
     var halt = false
     while(!halt) {
-      try {
+     // try {
         // load ir with opcode and operands of program(ip) (hint: use split)
+        ir = program(ip).split("\\s+")
         // increment ip
-        // skip empty instructions?
+        ip += 1
+        // skip empty instructions? comments need not be read, and labels are already stored in pre process
+        if(ir(0).size > 0 && ir(0) != "comment:" && ir(0) != "label:"){
         // based on opcode, execute the instruction (hint: use opcode match ...)
         // if opcode = "halt" then halt = true
-    } 
+        // TODO: Add check for None or Some class add check for 0
+          ir(0) match{
+            case "if" => if(get(ir(1)) != 0) ip = labels(ir(2))
+            case "equal" => if(get(ir(2)) == get(ir(3))) currentEnv.put(ir(1), new Variable(1))
+                            else currentEnv.put(ir(1), new Variable(0))
+            case "add" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) + get(ir(3))))
+            case "read" =>  currentEnv.put(ir(1), new Variable(readLine.toInt))
+            case "printmsg" =>  println 
+                                for(x <- 1 until ir.size) print(ir(x) + " ")
+            case "print" => print(get(ir(1)))
+            case "load" => currentEnv.put(ir(1), new Variable(ir(2).toInt)) // TODO: check if variable exists
+            case "def" => currentEnv.put(ir(1), new Variable(ir(2).toInt))
+            case "halt" => halt = true
+            case "goto" =>  ip = labels(ir(1))
+            case default => println("unrecognized opcode: " + ir(0))
+          }
+        }
+ //     } 
+    }
     println("bye ... ")
   }
-
   def main(args: Array[String]): Unit = {
-    val programFile = readLine("Enter program name: ")
+    //val programFile = readLine("Enter program name: ")
+    val programFile = "triangle"
     preProcess(programFile)
     fetchExecute
+    
+    //println(labels)
+    //println(currentEnv)
   }
 
 }
