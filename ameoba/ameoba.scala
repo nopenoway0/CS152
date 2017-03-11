@@ -17,6 +17,7 @@ print response prints var to console
  */
 
 import scala.collection.mutable.HashMap
+import scala.collection.mutable.Stack
 import amoeba.Environment
 import amoeba.Variable
 
@@ -26,6 +27,8 @@ object processor {
   var program: Array[String] = null
   var ip = 0
   var ir:Array[String] = null
+  var envStack: Stack[Environment] = Stack()
+  // Stack depth of only 1
   val labels = new HashMap[String, Int]
   
   def preProcess(fileName: String) {
@@ -68,14 +71,27 @@ object processor {
             case "equal" => if(get(ir(2)) == get(ir(3))) currentEnv.put(ir(1), new Variable(1))
                             else currentEnv.put(ir(1), new Variable(0))
             case "add" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) + get(ir(3))))
+            case "mul" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) * get(ir(3))))
+            case "div" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) / get(ir(3))))
+            case "sub" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) - get(ir(3))))
+            case "not" =>   if(get(ir(2)) == 0) currentEnv.put(ir(1), new Variable(1))
+                            else currentEnv.put(ir(1), new Variable(0))
+            case "call" =>  envStack.push(currentEnv)
+                            currentEnv = new Environment
+                            for(x <- 2 until ir.size) currentEnv.put("arg" + (x - 2).toString, envStack.top(ir(x)))
+                            currentEnv.put("rp", new Variable(ip))
+                            ip = labels(ir(1))
             case "read" =>  currentEnv.put(ir(1), new Variable(readLine.toInt))
             case "printmsg" =>  println 
                                 for(x <- 1 until ir.size) print(ir(x) + " ")
             case "print" => print(get(ir(1)))
-            case "load" => currentEnv.put(ir(1), new Variable(ir(2).toInt)) // TODO: check if variable exists
+            case "load" => currentEnv.put(ir(1), new Variable(get(ir(2)))) // TODO: check if variable exists
             case "def" => currentEnv.put(ir(1), new Variable(ir(2).toInt))
             case "halt" => halt = true
             case "goto" =>  ip = labels(ir(1))
+            case "return" =>  ip = get("rp")
+                              envStack.top.put("return", new Variable(get(ir(1))))
+                              currentEnv = envStack.pop
             case default => println("unrecognized opcode: " + ir(0))
           }
         }
@@ -85,7 +101,7 @@ object processor {
   }
   def main(args: Array[String]): Unit = {
     //val programFile = readLine("Enter program name: ")
-    val programFile = "triangle"
+    val programFile = "triangle2"
     preProcess(programFile)
     fetchExecute
     
