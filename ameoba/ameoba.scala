@@ -28,7 +28,6 @@ object processor {
   var ip = 0
   var ir:Array[String] = null
   var envStack: Stack[Environment] = Stack()
-  // Stack depth of only 1
   val labels = new HashMap[String, Int]
   
   def preProcess(fileName: String) {
@@ -37,12 +36,12 @@ object processor {
     try{
       program = io.Source.fromFile(fileName).getLines.toArray
     }catch{
-      case e: Exception => println("\n" + e.getMessage())
+      case e: Exception => println("\n" + e.getMessage)
       throw new Exception(e.getMessage())
     }
 
     for(i <- 0 until program.length) {
-      if (!program(i).isEmpty()) {
+      if (!program(i).isEmpty) {
          ir = program(i).split("\\s+")
          if (ir(0) == "label:") labels.put(ir(1), i)
       }
@@ -100,8 +99,7 @@ object processor {
     println("bye ... ")
   }
   def main(args: Array[String]): Unit = {
-    //val programFile = readLine("Enter program name: ")
-    val programFile = "triangle2"
+    val programFile = readLine("Enter program name: ")
     preProcess(programFile)
     fetchExecute
     
