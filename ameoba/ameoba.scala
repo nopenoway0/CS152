@@ -14,16 +14,14 @@ if if var is not equal to 0 go to designated label
 printmsg anything following printed to the console
 read var stores input into var
 print response prints var to console
+0 is false other integer is true
+or src1 != 0 || src2 != 0
  */
 
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.Stack
 
-class Variable(var cont: Int = 0) {
-  var content:Int = cont
-
-  override def toString = content.toString
-}
+class Variable(var content: Int = 0)
 
 class Environment(var extension: Environment = null) extends HashMap[String, Variable] {
   
@@ -82,25 +80,25 @@ object processor {
         // TODO: Add check for None or Some class add check for 0
           ir(0) match{
             case "if" => if(get(ir(1)) != 0) ip = labels(ir(2))
-            case "equal" => if(get(ir(2)) == get(ir(3))) currentEnv.put(ir(1), new Variable(1))
-                            else currentEnv.put(ir(1), new Variable(0))
-            case "add" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) + get(ir(3))))
-            case "mul" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) * get(ir(3))))
-            case "div" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) / get(ir(3))))
-            case "sub" =>   currentEnv.put(ir(1), new Variable(get(ir(2)) - get(ir(3))))
-            case "not" =>   if(get(ir(2)) == 0) currentEnv.put(ir(1), new Variable(1))
-                            else currentEnv.put(ir(1), new Variable(0))
+            case "equal" => if(get(ir(2)) == get(ir(3))) currentEnv(ir(1)).content = 1
+                            else currentEnv(ir(1)).content = 0
+            case "add" =>   currentEnv(ir(1)).content = get(ir(2)) + get(ir(3))
+            case "mul" =>   currentEnv(ir(1)).content = get(ir(2)) * get(ir(3))
+            case "div" =>   currentEnv(ir(1)).content = get(ir(2)) / get(ir(3))
+            case "sub" =>   currentEnv(ir(1)).content = get(ir(2)) - get(ir(3))
+            case "not" =>   if(get(ir(2)) == 0) currentEnv(ir(1)).content = 1
+                            else currentEnv(ir(1)).content = 0
             case "call" =>  envStack.push(currentEnv)
                             currentEnv = new Environment
                             for(x <- 2 until ir.size) currentEnv.put("arg" + (x - 2).toString, envStack.top(ir(x)))
                             currentEnv.put("rp", new Variable(ip))
                             ip = labels(ir(1))
-            case "read" =>  currentEnv.put(ir(1), new Variable(readLine.toInt))
+            case "read" =>  currentEnv(ir(1)).content = readLine.toInt
             case "printmsg" =>  println 
                                 for(x <- 1 until ir.size) print(ir(x) + " ")
             case "print" => print(get(ir(1)))
-            case "load" => currentEnv.put(ir(1), new Variable(get(ir(2)))) // TODO: check if variable exists
-            case "def" => currentEnv.put(ir(1), new Variable(ir(2).toInt))
+            case "load" => currentEnv(ir(1)).content = get(ir(2))
+            case "def" => currentEnv(ir(1)).content = ir(2).toInt
             case "halt" => halt = true
             case "goto" =>  ip = labels(ir(1))
             case "return" =>  ip = get("rp")
