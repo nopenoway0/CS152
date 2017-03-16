@@ -18,8 +18,23 @@ print response prints var to console
 
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.Stack
-import amoeba.Environment
-import amoeba.Variable
+
+class Variable(var cont: Int = 0) {
+  var content:Int = cont
+
+  override def toString = content.toString
+}
+
+class Environment(var extension: Environment = null) extends HashMap[String, Variable] {
+  
+  put("return", new Variable(0))
+  
+  override def apply(name: String) = {
+    if (contains(name)) super.apply(name)
+    else if (extension != null) extension(name)
+    else throw new Exception("undefined variable: " + name)
+  }
+}
 
 object processor {
   
