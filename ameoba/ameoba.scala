@@ -102,7 +102,7 @@ object processor {
                                 for(x <- 1 until ir.size) print(ir(x) + " ")
             case "print" => print(get(ir(1)))
             case "load" => currentEnv(ir(1)).content = get(ir(2))
-            case "def" => currentEnv(ir(1)).content = ir(2).toInt
+            case "def" => currentEnv.put(ir(1), new Variable(ir(2).toInt))
             case "halt" => halt = true
             case "goto" =>  ip = labels(ir(1))
             case "return" =>  ip = get("rp")
@@ -116,6 +116,7 @@ object processor {
     println("bye ... ")
   }
   def main(args: Array[String]): Unit = {
+    println("**************************************\nDid the extra credit using stacks\n**************************************")
     val programFile = readLine("Enter program name: ")
     preProcess(programFile)
     fetchExecute
