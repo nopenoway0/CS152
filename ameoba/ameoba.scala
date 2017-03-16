@@ -83,6 +83,10 @@ object processor {
             case "equal" => if(get(ir(2)) == get(ir(3))) currentEnv(ir(1)).content = 1
                             else currentEnv(ir(1)).content = 0
             case "add" =>   currentEnv(ir(1)).content = get(ir(2)) + get(ir(3))
+            case "and" => if(get(ir(2)) != 0 && get(ir(3)) != 0) currentEnv(ir(1)).content = 1
+                          else currentEnv(ir(1)).content = 0
+            case "or"  => if(get(ir(2)) != 0 || get(ir(3)) != 0) currentEnv(ir(1)).content = 1
+                          else currentEnv(ir(1)).content = 0
             case "mul" =>   currentEnv(ir(1)).content = get(ir(2)) * get(ir(3))
             case "div" =>   currentEnv(ir(1)).content = get(ir(2)) / get(ir(3))
             case "sub" =>   currentEnv(ir(1)).content = get(ir(2)) - get(ir(3))
