@@ -1,4 +1,4 @@
-object dds{
+ object dds{
 	//def halt(currentState: S, cycle: Int) = if(currentState is final) true else false
 
 	def controlLoop[S](state: S, cycle: Int, halt: (S, Int) => Boolean, update: (S, Int) => S): S = {
@@ -43,5 +43,8 @@ object dds{
 		solve(f)
 	}
 
-	def main(args: Array[String]) = println(nthRoot(27, 3))
+	def main(args: Array[String]) = {
+		println(nthRoot(27, 3))
+		println("Square Root: " + squareRoot(121))
+	}
 }
