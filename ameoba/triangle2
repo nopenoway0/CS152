@@ -1,0 +1,33 @@
+comment: this program computes the
+comment: number of blocks required
+comment: to build a staircase of a given height
+
+def height 0
+def response 0
+def same? 0
+def numBricks 0
+
+
+label: start
+load numBricks 0
+printmsg enter staircase height:
+read height
+
+call tri height
+load numBricks return
+
+comment: print the answer
+label: end
+printmsg number of blocks needed:
+print numBricks
+printmsg go again?
+read response
+if response start
+halt
+
+label: tri
+def temp 1
+add temp arg0 1
+mul temp arg0 temp
+div temp temp 2
+return temp
