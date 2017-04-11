@@ -32,12 +32,21 @@ object Sum{
 
 
 class And(val operand1: Expression, val operand2: Expression) extends Expression{
+	// Partial on exam. Want short circuit execution
 	def execute = {
 		val value1: Value = operand1.execute
 		val value2: Value = operand2.execute
-		if(!value1.isInstanceOf[Boole] || !value2.isInstanceOf[Boole])
+		if(!value1.isInstanceOf[Boole])
 			throw new Exception("type mismatch: only booles can be anded")
-		value1.asInstanceOf[Boole] && value2.asInstanceOf[Boole]
+		val bool1 = value1.asInstanceOf[Boole]
+		if(!bool1.value) bool1
+		else {
+			if(!value2.isInstanceOf[Boole])
+				throw new Exception("type mismatch: only booles can be anded")
+			val bool2 = value2.asInstanceOf[Boole]
+			bool2
+		}
+				
 	}
 
 	override def toString = "(" + operand1.toString + " AND " + operand2.toString + ")"
