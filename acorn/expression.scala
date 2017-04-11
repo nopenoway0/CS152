@@ -7,19 +7,17 @@ trait Expression{
 }
 
 class Literal extends Expression with Value{
-	def execute() = this
+	def execute = this
 }
 
 class Sum(val operand1: Expression, val operand2: Expression) extends Expression{
-	def execute() = {
-		val value1 = operand1.execute
-		val value2 = operand2.execute
+	def execute = {
+		val value1: Value = operand1.execute
+		val value2: Value = operand2.execute
 		if (!value1.isInstanceOf[Number] || !value2.isInstanceOf[Number])
 		  throw new Exception("type mismatch: only numbers can be added")
 		else {
-		  val num1 = value1.asInstanceOf[Number]
-		  val num2 = value2.asInstanceOf[Number]
-		  num1 + num2
+		  value1.asInstanceOf[Number] + value2.asInstanceOf[Number]
 	}
 	}
 
@@ -32,8 +30,26 @@ object Sum{
 	}
 }
 
+
+class And(val operand1: Expression, val operand2: Expression) extends Expression{
+	def execute = {
+		val value1: Value = operand1.execute
+		val value2: Value = operand2.execute
+		if(!value1.isInstanceOf[Boole] || !value2.isInstanceOf[Boole])
+			throw new Exception("type mismatch: only booles can be anded")
+		value1.asInstanceOf[Boole] && value2.asInstanceOf[Boole]
+	}
+
+	override def toString = "(" + operand1.toString + " AND " + operand2.toString + ")"
+}
+
+object And{
+	def apply(operand1: Expression, operand2: Expression) = new And(operand1, operand2)
+	def test = "test"
+}
+
 class Times(val operand1: Expression, val operand2: Expression) extends Expression{
-	def execute() = {
+	def execute = {
 		val value1 = operand1.execute
 		val value2 = operand2.execute
 		if (!value1.isInstanceOf[Number] || !value2.isInstanceOf[Number])
