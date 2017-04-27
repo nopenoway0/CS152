@@ -21,8 +21,33 @@ case class Number(val value: Double) extends Literal{
 	def execute() = this.value
 }
 
-//class Closure extends Value
 
+case class Notification(val msg: String) extends Value{
+	override def toString = msg
+}
+
+object Notification{
+	def apply(msg: String) = new Notification(msg)
+	val OK = Notification("ok")
+	val DONE = Notification("done")
+
+}
+
+object alu{
+	def execute(operator: Identifier, args: List[Value]): Value = {
+		operator.name match{
+			case "add" => add(args)
+			//etc.
+			case _ => UndefinedEx(operator.name)
+		}
+	}
+	// lots of type checking for numbers otherwise throw an exception
+	private def add(args:List[Value]): Number = {
+		// function goes here
+	}
+}
+
+//class Closure extends Value
 class Environment(var extension: Environment = null) extends HashMap[Identifier, Value] with Value{
 	override def apply(name: Identifier): Value = {
 		if(contains(name)) super.apply(name)

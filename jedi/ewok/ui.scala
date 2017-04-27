@@ -24,6 +24,15 @@ class EwokParsers extends RegexParsers {
 	def declaration: Parse[Declaration]  = "def ~ identifier ~ "=" ~ expression ^^{
 		case "def" ~id~"="~exp => Declaration(id, exp)
 	}
+
+	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA0-9]*""".r ^^{
+		case someString=>Identifier(someString)
+	}
+
+	def disjunction: Parser[Expression] = conjuction ~ rep("||" ~ conjuction ) ^^{
+		case con ~ Nil => con
+		case con ~ cons => Disjunction(con::cons) // adds con to cons beginning of list
+	}
 	//def declaration, conditional, dusjunction, and other parsers
 }
 */
