@@ -34,6 +34,10 @@ class EwokParsers extends RegexParsers {
 		case con ~ cons => Disjunction(con::cons) // adds con to cons beginning of list
 	}
 	//def declaration, conditional, dusjunction, and other parsers
+	def operands: Parser[List[Expression]] = {
+		case "(" ~ opt(expression~reptition(","~expression))~")"
+		case "(" ~ Some(exp) ~ Nil ~ ")" => (exp)
+	}
 }
 */
 

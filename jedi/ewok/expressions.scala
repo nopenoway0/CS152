@@ -45,7 +45,7 @@ class Funcall(val operator: Identifier, operands: List[Expression]) extends Expr
 	def execute(env: Environment): Value = {
 		var args = List[Value]()
 		// add operands.asInstanceOf
-		val args = operands.execute(_.execute(env))
+		val args = operands.map(_.execute(env))
 		alu.execute(operator, args)
 	}
 }

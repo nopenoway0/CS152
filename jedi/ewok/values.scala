@@ -43,7 +43,11 @@ object alu{
 	}
 	// lots of type checking for numbers otherwise throw an exception
 	private def add(args:List[Value]): Number = {
-		// function goes here
+		var nums = args.filter(_.isInstanceOf[Number])
+		if(nums.length != args.lenth)
+			throw new TypeException("Inputs to add must be numbers")
+		val nums2 = nums.map(_.asInstanceOf[Number])
+		nums2.reduce(_+_=)
 	}
 }
 
