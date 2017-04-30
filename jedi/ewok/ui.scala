@@ -36,7 +36,7 @@ object SyntaxException{
 
 class EwokParsers extends RegexParsers {
 
-	def expression: Parser[Expression] = declaration | funcall | identifier | literal
+	def expression: Parser[Expression] = declaration | funcall// | identifier | literal
 
 	def declaration: Parser[Declaration] = "def"~identifier~"="~expression ^^{
 		case "def"~id~"="~exp => Declaration(id, exp)
@@ -52,24 +52,33 @@ class EwokParsers extends RegexParsers {
 		case someString => Boole(someString.toBoolean)
 	}
 
-	def number: Parser[Number] = """[0-9]*""".r ^^{
+	def number: Parser[Number] = "(\\+|\\-)?[0-9]+(\\.[0-9]+)?".r ^^{
 		case someString => Number(someString.toDouble)
 	}
 
-	def funcall: Parser[Funcall] = (identifier | literal)~operator~(identifier | literal) ~opt(operator~funcall) ^^{
-		case arg1~op~arg2~None =>{
+	def funcall: Parser[Expression] = (identifier | literal)~opt(operator~funcall) ^^{
+		case arg1~None =>{
+			arg1
+		}
+
+		case arg1~Some(additional) =>{
 			var args = List[Expression]()
+			val op = additional._1
+			val arg2 = additional._2
 			args = args :+ arg1
 			args = args :+ arg2
 			Funcall(op, args)
 		}
 		case _ =>{
-			throw new UndefinedException("RIP")
+			throw new SyntaxException("RIP")
 		}
 	}
 
-	def operator: Parser[Identifier] = "+" ^^{
+	def operator: Parser[Identifier] = "\\/|\\*|\\+|\\-".r ^^{
 		case "+" => Identifier("add")
+		case "*" => Identifier("mul")
+		case "/" => Identifier("div")
+		case "-" => Identifier("sub")
 	}
 	/*
 	//def expression: Parser[Expression] = number

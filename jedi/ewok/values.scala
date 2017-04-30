@@ -46,6 +46,9 @@ object alu{
 	def execute(operator: Identifier, args: List[Value]): Value = {
 		operator.name match{
 			case "add" => add(args)
+			case "mul" => mul(args)
+			case "sub" => sub(args)
+			case "div" => div(args)
 			//etc.
 			case _ => throw UndefinedException(operator.name)
 		}
@@ -58,6 +61,30 @@ object alu{
 		val nums2 = nums.map(_.asInstanceOf[Number])
 		//nums2.reduce(_+_=)
 		nums2.reduce(_+_)
+	}
+	private def mul(args:List[Value]): Number = {
+		var nums = args.filter(_.isInstanceOf[Number])
+		if(nums.length != args.length)
+			throw new TypeException("Inputs to add must be numbers")
+		val nums2 = nums.map(_.asInstanceOf[Number])
+		//nums2.reduce(_+_=)
+		nums2.reduce(_*_)
+	}
+	private def sub(args:List[Value]): Number = {
+		var nums = args.filter(_.isInstanceOf[Number])
+		if(nums.length != args.length)
+			throw new TypeException("Inputs to add must be numbers")
+		val nums2 = nums.map(_.asInstanceOf[Number])
+		//nums2.reduce(_+_=)
+		nums2.reduce(_-_)
+	}
+	private def div(args:List[Value]): Number = {
+		var nums = args.filter(_.isInstanceOf[Number])
+		if(nums.length != args.length)
+			throw new TypeException("Inputs to add must be numbers")
+		val nums2 = nums.map(_.asInstanceOf[Number])
+		//nums2.reduce(_+_=)
+		nums2.reduce(_/_)
 	}
 }
 
