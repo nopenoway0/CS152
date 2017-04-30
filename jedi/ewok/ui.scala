@@ -1,89 +1,111 @@
 package ui
 //
 // package system?
-//import scala.util.parsing.combinator._ // for the parser. Add external jars. Build into make file. link to the jar library
+import scala.util.parsing.combinator._ // for the parser. Add external jars. Build into make file. link to the jar library
 import expression._
 import value._
 
-class JediException(val gripe: String = "Jedi error ") extends Exception(gripe)
+class JediException(gripe: String) extends Exception(gripe)
 
-class UndefinedException(name: Identifier) extends JediException("Unidentified identifier: " + name)
+object JediException{
+	def apply(gripe: String) = new JediException(gripe)
+}
+
+class UndefinedException(name: String) extends JediException("Unidentified identifier: " + name)
+
+object UndefinedException{
+	def apply(name: String) = new UndefinedException(name)
+}
 
 // Incomplete
-class TypeException extends JediException("Type Exception")
+class TypeException(gripe: String) extends JediException(gripe)
+
+object TypeException{
+	def apply(gripe: String) = new TypeException(gripe)
+}
 
 // Incomplete
-class SyntaxException extends JediException("Syntax Exception")
+class SyntaxException(gripe: String) extends JediException(gripe){
+	def msg = gripe
+}
+
+object SyntaxException{
+	def apply(gripe: String) = new SyntaxException(gripe)
+}
 
 
-/*
 class EwokParsers extends RegexParsers {
 
-	def expression: Parser[Expression] = declaration | conditional | disjunction | failure("Invalid expression")
+	def expression: Parser[Expression] = declaration | funcall | identifier | literal
 
-	def declaration: Parse[Declaration]  = "def ~ identifier ~ "=" ~ expression ^^{
-		case "def" ~id~"="~exp => Declaration(id, exp)
+	def declaration: Parser[Declaration] = "def"~identifier~"="~expression ^^{
+		case "def"~id~"="~exp => Declaration(id, exp)
 	}
 
-	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA0-9]*""".r ^^{
+	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA-Z0-9]*""".r ^^{
 		case someString=>Identifier(someString)
 	}
 
+	def literal: Parser[Literal] = boole | number
+
+	def boole: Parser[Boole] = ("true" | "false") ^^{
+		case someString => Boole(someString.toBoolean)
+	}
+
+	def number: Parser[Number] = """[0-9]*""".r ^^{
+		case someString => Number(someString.toDouble)
+	}
+
+	def funcall: Parser[Funcall] = (identifier | literal)~operator~(identifier | literal) ~opt(operator~funcall) ^^{
+		case arg1~op~arg2~None =>{
+			var args = List[Expression]()
+			args = args :+ arg1
+			args = args :+ arg2
+			Funcall(op, args)
+		}
+		case _ =>{
+			throw new UndefinedException("RIP")
+		}
+	}
+
+	def operator: Parser[Identifier] = "+" ^^{
+		case "+" => Identifier("add")
+	}
+	/*
+	//def expression: Parser[Expression] = number
+	//def expression: Parser[Expression] = declaration | conditional | disjunction | failure("Invalid expression")
+	//def declaration: Parser[Declaration] = "def"~identifier~"="~expression ^^{
+		case "def"~id~"="~exp => {
+			Declaration(id, exp)
+		}
+		case _ => throw new SyntaxException("Error making dec")
+	}
+
+	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA-Z0-9]*""".r ^^{
+		case someString=>Identifier(someString)
+	}
+
+	//def sum: Parser[Number] = term~"+"~term ^^{
+	//	case exp1~"+"~exp2 => {
+	//		println(exp1 + " " + exp2)
+	//		Number(0)
+	//	}
+	//}
+/*
 	def disjunction: Parser[Expression] = conjuction ~ rep("||" ~ conjuction ) ^^{
 		case con ~ Nil => con
 		case con ~ cons => Disjunction(con::cons) // adds con to cons beginning of list
-	}
-	//def declaration, conditional, dusjunction, and other parsers
-	def operands: Parser[List[Expression]] = {
-		case "(" ~ opt(expression~reptition(","~expression))~")"
-		case "(" ~ Some(exp) ~ Nil ~ ")" => (exp)
-	}
-}
-*/
-
-/*
-// Console object
-// 
-object console{
-   val parsers = new EwokParsers // for now
-   val globalEnv = new Environment
-
-   def execute(cmmd: String): String = {
-      val tree = parsers.parseAll(parsers.expression, cmmd)
-      tree match {
-         case t: parsers.Failure => throw new SyntaxException(t)
-         case _ => {
-            val exp = tree.get  // get the expression from the tree
-            val result = exp.execute(globalEnv)  // execute the expression
-            result.toString  // return string representation of result
-         }
-      }
-   }
-
-   /*
-	while(more){
-		try {// read/execute/print
-			print("->")
-			cmmd = 
-			if(cmmd == "quit") more = false
-			else println(execute(cmmd))
-	}
-	catch {
-		case 	e: SyntaxException =>{
-			println(e.msg)
-			println(e.result.msg)
-			println("line # = " + e.result.next.pos.line)
-			println("column # = " + e.result.next.pos.column)
-			println("token = " + e.result.next.first_)
-		}
-		//case 	e:
-		case 	e:JediException => {
-			println(e)
-		} 
-		case 	e: Exception => {
-			println(e)
-			more = false
-		}
 	}*/
+	//def declaration, conditional, dusjunction, and other parsers
+	//def operands: Parser[List[Expression]] = {
+	//	case "(" ~ opt(expression~reptition(","~expression))~")"
+	//	case "(" ~ Some(exp) ~ Nil ~ ")" => (exp)
+	//}
+
+	def literal: Parser[Literal] = number
+
+	def number: Parser[Number] = """"[0-9]*""".r ^^{
+		case someString => Number(someString.toDouble)
+	}
+	*/
 }
-*/

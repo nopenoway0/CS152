@@ -11,6 +11,11 @@ case class Boole(val value: Boolean) extends Literal{
 	def ||(other: Boole) = Boole(this.value || other.value)
 }
 
+object Boole{
+	val TRUE = Boole(true)
+	val FALSE = Boole(false)
+}
+
 case class Number(val value: Double) extends Literal{
 	def +(other: Number) = Number(this.value + other.value)
 	def *(other: Number) = Number(this.value * other.value)
@@ -19,15 +24,19 @@ case class Number(val value: Double) extends Literal{
 	def <(other: Number) = Boole(this.value < other.value)
 	def ==(other: Number) = Boole(this.value == other.value)
 	def execute() = this.value
+	override def toString() = this.value.toString
 }
 
+case class Symbol(val operator: String) extends Literal{
+	def execute() = this.operator
+}
 
 case class Notification(val msg: String) extends Value{
 	override def toString = msg
 }
 
 object Notification{
-	def apply(msg: String) = new Notification(msg)
+//	def apply(msg: String) = new Notification(msg)
 	val OK = Notification("ok")
 	val DONE = Notification("done")
 
@@ -38,16 +47,17 @@ object alu{
 		operator.name match{
 			case "add" => add(args)
 			//etc.
-			case _ => UndefinedEx(operator.name)
+			case _ => throw UndefinedException(operator.name)
 		}
 	}
 	// lots of type checking for numbers otherwise throw an exception
 	private def add(args:List[Value]): Number = {
 		var nums = args.filter(_.isInstanceOf[Number])
-		if(nums.length != args.lenth)
+		if(nums.length != args.length)
 			throw new TypeException("Inputs to add must be numbers")
 		val nums2 = nums.map(_.asInstanceOf[Number])
-		nums2.reduce(_+_=)
+		//nums2.reduce(_+_=)
+		nums2.reduce(_+_)
 	}
 }
 
@@ -56,6 +66,6 @@ class Environment(var extension: Environment = null) extends HashMap[Identifier,
 	override def apply(name: Identifier): Value = {
 		if(contains(name)) super.apply(name)
 		else if (extension != null) extension(name)
-		else throw new UndefinedException(name)
+		else throw new UndefinedException(name.name)
 	}
 }
