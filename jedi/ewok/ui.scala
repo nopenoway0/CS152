@@ -37,7 +37,7 @@ object SyntaxException{
 class EwokParsers extends RegexParsers {
 	def term: Parser[Expression] =  literal | identifier | expression
 
-	def expression: Parser[Expression] = declaration | funcall | term// | conditional | equality// | funcall | failure("Error")
+	def expression: Parser[Expression] = declaration | product | funcall | term// | conditional | equality// | funcall | failure("Error")
 
 	def literal: Parser[Literal] = boole | number
 
@@ -57,7 +57,6 @@ class EwokParsers extends RegexParsers {
 		case someString=>Identifier(someString)
 	}
 
-
 	def operands: Parser[List[Expression]] = expression ~ opt((","~operands)) ^^{
 		case exp1~None =>{
 			var args = List[Expression]()
@@ -73,13 +72,27 @@ class EwokParsers extends RegexParsers {
 		case _ => throw new SyntaxException("Error")
 	}
 
-	def funcall: Parser[Expression] = identifier~"("~opt(operands)~")" ^^{
+	def funcall: Parser[Expression] = term~"("~opt(operands)~")" ^^{
 		//case "add"~"("~None~")" => t
 		case id~"("~None~")"=>{
 			throw new SyntaxException("Error")
 		}
 		case id~"("~Some(exp)~")"=>{
-			Funcall(id, exp)
+			Funcall(id.asInstanceOf[Identifier], exp)
+		}
+		case _ => throw new SyntaxException("Error")
+	}
+
+	def product: Parser[Expression] = funcall~opt(("*" | "/")~funcall) ^^{
+		case call1~None =>{
+			Product(call1)
+		}
+		case call1~Some(m)=>{
+			var arg = List[Expression]()
+			arg = arg :+ m._2
+			if(m._1 == "*") Product(call1, arg)
+			else Divisor(call1, arg)
+			//Product(call1, call2)
 		}
 		case _ => throw new SyntaxException("Error")
 	}

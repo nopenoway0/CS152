@@ -68,3 +68,13 @@ case class Conditional(val condition: Expression, val result: Expression, val el
 		else elseCond.execute(env)
 	}
 }
+
+case class Product(arg1: Expression, arg2: List[Expression] = null) extends Expression {
+   def execute(env: Environment) = 
+     if (arg2 == null) arg1.execute(env) else arg1.execute(env).asInstanceOf[Number] * arg2.map(_.execute(env).asInstanceOf[Number]).reduce(_*_)
+}
+
+case class Divisor(arg1: Expression, arg2: List[Expression] = null) extends Expression{
+   def execute(env: Environment) = 
+     if (arg2 == null) arg1.execute(env) else arg1.execute(env).asInstanceOf[Number] * arg2.map(_.execute(env).asInstanceOf[Number]).reduce(_/_)
+}
