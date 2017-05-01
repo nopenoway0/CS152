@@ -97,13 +97,17 @@ class EwokParsers extends RegexParsers {
 	}
 
 	def sum: Parser[Expression] = product~rep(("+" | "-")~product) ^^{
-		case p1 =>{
-			var args = List[Expression]()
-			for(x <- p1._2) args = args :+ x._2
-			println(args)
-			println(p1._1)
-			if(p1._2.size == 0) Sum(p1._1)
-			else Sum(p1._1, args)
+		case call1~list =>list.foldLeft(call1){
+			case (x, "+" ~ y)=>{
+				var arg = List[Expression]()
+				arg = arg :+ y
+				Sum(x, arg)
+			}
+			case (x, "-" ~ y)=>{
+				var arg = List[Expression]()
+				arg = arg :+ y
+				Sub(x,arg)
+			}
 		}
 		//case _ => throw new SyntaxException("Error")
 	}
