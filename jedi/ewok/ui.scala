@@ -35,7 +35,7 @@ object SyntaxException{
 
 
 class EwokParsers extends RegexParsers {
-	def term: Parser[Expression] = literal | identifier | expression
+	def term: Parser[Expression] =  literal | identifier | expression
 
 	def expression: Parser[Expression] = declaration | conditional | equality | funcall | failure("Error")// | identifier | literal
 
@@ -67,6 +67,21 @@ class EwokParsers extends RegexParsers {
 		case someString => Number(someString.toDouble)
 	}
 
+	def operands: Parser[List[Expression]] = expression ~ opt((","~operands)) ^^{
+		case exp1~None =>{
+			var args = List[Expression]()
+			args = args :+ exp1
+			args
+		}
+		case exp1~Some(rest) =>{
+			var args = List[Expression]()
+			args = args :+ exp1
+			//args = args :+ rest._2
+			print(rest)
+			args
+		}
+		case _ => throw new SyntaxException("Error")
+	}
 
 	def funcall: Parser[Expression] = (identifier | literal)~opt(operator~funcall) ^^{
 		case arg1~None =>{
