@@ -22,6 +22,7 @@ case class Number(val value: Double) extends Literal{
 	def -(other: Number) = Number(this.value - other.value)
 	def /(other: Number) = Number(this.value / other.value)
 	def <(other: Number) = Boole(this.value < other.value)
+	def >(other: Number) = Boole(this.value > other.value)
 	def ==(other: Number) = Boole(this.value == other.value)
 	def execute() = this.value
 	override def toString() = this.value.toString
@@ -49,6 +50,7 @@ object alu{
 			case "mul" => mul(args)
 			case "sub" => sub(args)
 			case "div" => div(args)
+			case "equals" => equals(args)
 			//etc.
 			case _ => throw UndefinedException(operator.name)
 		}
@@ -85,6 +87,20 @@ object alu{
 		val nums2 = nums.map(_.asInstanceOf[Number])
 		//nums2.reduce(_+_=)
 		nums2.reduce(_/_)
+	}
+	private def equals(args:List[Value]): Boole = {
+		//var nums = args.filter(_.isInstanceOf[Boole])
+		//if(nums.length != args.length)
+		//	throw new TypeException("Booles needed to compare")
+		//val nums2 = nums.map(_.asInstanceOf[Boole])
+		val nums2 = args
+		var matched = Boole.TRUE
+		var prev = args(0)
+		for(x <- args){
+			if(x != prev) matched = Boole.FALSE
+			prev = x
+		}
+		matched
 	}
 }
 

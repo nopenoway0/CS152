@@ -32,7 +32,7 @@ object console{
             print("-> ")
             cmmd = scala.io.StdIn.readLine()
             // handle meta-commands
-            println(execute(cmmd))
+            if(cmmd.size > 0)println(execute(cmmd))
          } 
          catch {
          	case e: Exception => println(e.toString)

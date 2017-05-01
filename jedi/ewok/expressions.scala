@@ -48,6 +48,17 @@ case class Equality(val arg1: Expression, val arg2: Expression) extends SpecialF
 	}
 }
 
+case class Inequality(val arg1: Expression, val arg2: Expression, val operator: Identifier) extends SpecialForm{
+	def execute(env: Environment) = {
+		val value = arg1.execute(env)
+		val value2 = arg2.execute(env)
+		operator.name match{
+			case "<" => value.asInstanceOf[Number] < value2.asInstanceOf[Number]
+			case ">" => value.asInstanceOf[Number] > value2.asInstanceOf[Number]
+		}
+	}
+}
+
 case class Identifier(val name: String) extends Expression{
 	def execute(env: Environment) = env(this)
 }

@@ -37,7 +37,7 @@ object SyntaxException{
 class EwokParsers extends RegexParsers {
 	def term: Parser[Expression] =  literal | identifier | expression
 
-	def expression: Parser[Expression] = declaration | sum | product | funcall// | term// | conditional | equality// | funcall | failure("Error")
+	def expression: Parser[Expression] = declaration | inequality | equality | sum | product | funcall// | funcall | failure("Error")
 
 	def literal: Parser[Literal] = boole | number
 
@@ -111,8 +111,7 @@ class EwokParsers extends RegexParsers {
 		}
 		//case _ => throw new SyntaxException("Error")
 	}
-
-	/*
+/*
 	def conditional: Parser[Conditional] = "if"~"("~expression~")"~expression~opt("else"~expression) ^^{
 		case "if"~"("~exp1~")"~exp2~None=>{
 			Conditional(exp1, exp2)
@@ -122,18 +121,22 @@ class EwokParsers extends RegexParsers {
 		}
 		case _ => throw new SyntaxException("Error")
 	}
-
-	def equality: Parser[Equality] = funcall~"=="~funcall~opt("&&"~equality) ^^{
-		case arg1~op~arg2~Some(other_args) =>{
-			val arg3 = other_args._2
-			Equality(Equality(arg1, arg2), arg3)
-		}
-		case arg1~op~arg2~None =>{
+*/
+	def equality: Parser[Equality] = inequality~"=="~inequality ^^{
+		case arg1~"=="~arg2=>{
 			Equality(arg1, arg2)
 		}
 	}
-*/
 
+
+	def inequality: Parser[Inequality] = sum~("<" | ">")~sum ^^{
+		case s1~"<"~s2=>{
+			Inequality(s1, s2, Identifier("<"))
+		}
+		case s1~">"~s2=>{
+			Inequality(s1, s2, Identifier(">"))
+		}		case _ => throw new SyntaxException("Error")
+	}
 /*
 	def disjunction: Parser[Expression] = conjuction ~ rep("||" ~ conjuction ) ^^{
 		case con ~ Nil => con
