@@ -39,6 +39,15 @@ case class Disjunction(val exps:List[Expression]) extends SpecialForm{
 	
 }
 
+case class Equality(val arg1: Expression, val arg2: Expression) extends SpecialForm{
+	def execute(env: Environment) = {
+		val value1 = arg1.execute(env)
+		val value2 = arg2.execute(env)
+		if(value1 == value2) Boole.TRUE
+		else Boole.FALSE
+	}
+}
+
 case class Identifier(val name: String) extends Expression{
 	def execute(env: Environment) = env(this)
 }
@@ -49,5 +58,13 @@ case class Funcall(val operator: Identifier, operands: List[Expression]) extends
 		// add operands.asInstanceOf
 		args = operands.map(_.execute(env))
 		alu.execute(operator, args)
+	}
+}
+
+case class Conditional(val condition: Expression, val result: Expression, val elseCond:Expression = Boole.FALSE) extends Expression{
+	def execute(env: Environment) = {
+		if(condition.execute(env) == Boole.TRUE)
+			result.execute(env)
+		else elseCond.execute(env)
 	}
 }

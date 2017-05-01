@@ -35,11 +35,22 @@ object SyntaxException{
 
 
 class EwokParsers extends RegexParsers {
+	def term: Parser[Expression] = literal | identifier | expression
 
-	def expression: Parser[Expression] = declaration | funcall// | identifier | literal
+	def expression: Parser[Expression] = declaration | conditional | equality | funcall | failure("Error")// | identifier | literal
 
 	def declaration: Parser[Declaration] = "def"~identifier~"="~expression ^^{
 		case "def"~id~"="~exp => Declaration(id, exp)
+	}
+
+	def conditional: Parser[Conditional] = "if"~"("~expression~")"~expression~opt("else"~expression) ^^{
+		case "if"~"("~exp1~")"~exp2~None=>{
+			Conditional(exp1, exp2)
+		}
+		case "if"~"("~exp1~")"~exp2~Some(exp3)=>{
+			Conditional(exp1, exp2, exp3._2)
+		}
+		case _ => throw new SyntaxException("Error")
 	}
 
 	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA-Z0-9]*""".r ^^{
@@ -55,6 +66,7 @@ class EwokParsers extends RegexParsers {
 	def number: Parser[Number] = "(\\+|\\-)?[0-9]+(\\.[0-9]+)?".r ^^{
 		case someString => Number(someString.toDouble)
 	}
+
 
 	def funcall: Parser[Expression] = (identifier | literal)~opt(operator~funcall) ^^{
 		case arg1~None =>{
@@ -80,41 +92,20 @@ class EwokParsers extends RegexParsers {
 		case "/" => Identifier("div")
 		case "-" => Identifier("sub")
 	}
-	/*
-	//def expression: Parser[Expression] = number
-	//def expression: Parser[Expression] = declaration | conditional | disjunction | failure("Invalid expression")
-	//def declaration: Parser[Declaration] = "def"~identifier~"="~expression ^^{
-		case "def"~id~"="~exp => {
-			Declaration(id, exp)
+
+	def equality: Parser[Equality] = funcall~"=="~funcall~opt("&&"~equality) ^^{
+		case arg1~op~arg2~Some(other_args) =>{
+			val arg3 = other_args._2
+			Equality(Equality(arg1, arg2), arg3)
 		}
-		case _ => throw new SyntaxException("Error making dec")
+		case arg1~op~arg2~None =>{
+			Equality(arg1, arg2)
+		}
 	}
 
-	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA-Z0-9]*""".r ^^{
-		case someString=>Identifier(someString)
-	}
-
-	//def sum: Parser[Number] = term~"+"~term ^^{
-	//	case exp1~"+"~exp2 => {
-	//		println(exp1 + " " + exp2)
-	//		Number(0)
-	//	}
-	//}
 /*
 	def disjunction: Parser[Expression] = conjuction ~ rep("||" ~ conjuction ) ^^{
 		case con ~ Nil => con
 		case con ~ cons => Disjunction(con::cons) // adds con to cons beginning of list
 	}*/
-	//def declaration, conditional, dusjunction, and other parsers
-	//def operands: Parser[List[Expression]] = {
-	//	case "(" ~ opt(expression~reptition(","~expression))~")"
-	//	case "(" ~ Some(exp) ~ Nil ~ ")" => (exp)
-	//}
-
-	def literal: Parser[Literal] = number
-
-	def number: Parser[Number] = """"[0-9]*""".r ^^{
-		case someString => Number(someString.toDouble)
-	}
-	*/
 }
