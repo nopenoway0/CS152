@@ -68,19 +68,18 @@ class EwokParsers extends RegexParsers {
 			var args = List[Expression]()
 			args = args :+ exp1
 			args = args ++ rest._2
-			print(rest)
 			args
 		}
 		case _ => throw new SyntaxException("Error")
 	}
 
-	def funcall: Parser[Expression] = ("add" | "sub" | "mul" | "div")~"("~opt(operands)~")" ^^{
+	def funcall: Parser[Expression] = identifier~"("~opt(operands)~")" ^^{
 		//case "add"~"("~None~")" => t
-		case "add"~"("~None~")"=>{
+		case id~"("~None~")"=>{
 			throw new SyntaxException("Error")
 		}
-		case "add"~"("~Some(exp)~")"=>{
-			Funcall(Identifier("add"), exp)
+		case id~"("~Some(exp)~")"=>{
+			Funcall(id, exp)
 		}
 		case _ => throw new SyntaxException("Error")
 	}
