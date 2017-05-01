@@ -37,25 +37,7 @@ object SyntaxException{
 class EwokParsers extends RegexParsers {
 	def term: Parser[Expression] =  literal | identifier | expression
 
-	def expression: Parser[Expression] = declaration | conditional | equality | funcall | failure("Error")// | identifier | literal
-
-	def declaration: Parser[Declaration] = "def"~identifier~"="~expression ^^{
-		case "def"~id~"="~exp => Declaration(id, exp)
-	}
-
-	def conditional: Parser[Conditional] = "if"~"("~expression~")"~expression~opt("else"~expression) ^^{
-		case "if"~"("~exp1~")"~exp2~None=>{
-			Conditional(exp1, exp2)
-		}
-		case "if"~"("~exp1~")"~exp2~Some(exp3)=>{
-			Conditional(exp1, exp2, exp3._2)
-		}
-		case _ => throw new SyntaxException("Error")
-	}
-
-	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA-Z0-9]*""".r ^^{
-		case someString=>Identifier(someString)
-	}
+	def expression: Parser[Expression] = declaration | funcall | term// | conditional | equality// | funcall | failure("Error")
 
 	def literal: Parser[Literal] = boole | number
 
@@ -67,6 +49,15 @@ class EwokParsers extends RegexParsers {
 		case someString => Number(someString.toDouble)
 	}
 
+	def declaration: Parser[Declaration] = "def"~identifier~"="~expression ^^{
+		case "def"~id~"="~exp => Declaration(id, exp)
+	}
+
+	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA-Z0-9]*""".r ^^{
+		case someString=>Identifier(someString)
+	}
+
+
 	def operands: Parser[List[Expression]] = expression ~ opt((","~operands)) ^^{
 		case exp1~None =>{
 			var args = List[Expression]()
@@ -76,13 +67,48 @@ class EwokParsers extends RegexParsers {
 		case exp1~Some(rest) =>{
 			var args = List[Expression]()
 			args = args :+ exp1
-			//args = args :+ rest._2
+			args = args ++ rest._2
 			print(rest)
 			args
 		}
 		case _ => throw new SyntaxException("Error")
 	}
 
+	def funcall: Parser[Expression] = ("add" | "sub" | "mul" | "div")~"("~opt(operands)~")" ^^{
+		//case "add"~"("~None~")" => t
+		case "add"~"("~None~")"=>{
+			throw new SyntaxException("Error")
+		}
+		case "add"~"("~Some(exp)~")"=>{
+			Funcall(Identifier("add"), exp)
+		}
+		case _ => throw new SyntaxException("Error")
+	}
+
+	/*
+	def conditional: Parser[Conditional] = "if"~"("~expression~")"~expression~opt("else"~expression) ^^{
+		case "if"~"("~exp1~")"~exp2~None=>{
+			Conditional(exp1, exp2)
+		}
+		case "if"~"("~exp1~")"~exp2~Some(exp3)=>{
+			Conditional(exp1, exp2, exp3._2)
+		}
+		case _ => throw new SyntaxException("Error")
+	}
+
+	def equality: Parser[Equality] = funcall~"=="~funcall~opt("&&"~equality) ^^{
+		case arg1~op~arg2~Some(other_args) =>{
+			val arg3 = other_args._2
+			Equality(Equality(arg1, arg2), arg3)
+		}
+		case arg1~op~arg2~None =>{
+			Equality(arg1, arg2)
+		}
+	}
+*/
+/*
+
+/*
 	def funcall: Parser[Expression] = (identifier | literal)~opt(operator~funcall) ^^{
 		case arg1~None =>{
 			arg1
@@ -99,7 +125,7 @@ class EwokParsers extends RegexParsers {
 		case _ =>{
 			throw new SyntaxException("RIP")
 		}
-	}
+	}*/
 
 	def operator: Parser[Identifier] = "\\/|\\*|\\+|\\-".r ^^{
 		case "+" => Identifier("add")
@@ -108,19 +134,10 @@ class EwokParsers extends RegexParsers {
 		case "-" => Identifier("sub")
 	}
 
-	def equality: Parser[Equality] = funcall~"=="~funcall~opt("&&"~equality) ^^{
-		case arg1~op~arg2~Some(other_args) =>{
-			val arg3 = other_args._2
-			Equality(Equality(arg1, arg2), arg3)
-		}
-		case arg1~op~arg2~None =>{
-			Equality(arg1, arg2)
-		}
-	}
 
 /*
 	def disjunction: Parser[Expression] = conjuction ~ rep("||" ~ conjuction ) ^^{
 		case con ~ Nil => con
 		case con ~ cons => Disjunction(con::cons) // adds con to cons beginning of list
 	}*/
-}
+}*/}
