@@ -37,7 +37,7 @@ object SyntaxException{
 class EwokParsers extends RegexParsers {
 	def term: Parser[Expression] =  literal | identifier | expression
 
-	def expression: Parser[Expression] = declaration | product | funcall | term// | conditional | equality// | funcall | failure("Error")
+	def expression: Parser[Expression] = declaration | sum | product | funcall// | term// | conditional | equality// | funcall | failure("Error")
 
 	def literal: Parser[Literal] = boole | number
 
@@ -73,7 +73,6 @@ class EwokParsers extends RegexParsers {
 	}
 
 	def funcall: Parser[Expression] = term~"("~opt(operands)~")" ^^{
-		//case "add"~"("~None~")" => t
 		case id~"("~None~")"=>{
 			throw new SyntaxException("Error")
 		}
@@ -83,7 +82,7 @@ class EwokParsers extends RegexParsers {
 		case _ => throw new SyntaxException("Error")
 	}
 
-	def product: Parser[Expression] = funcall~opt(("*" | "/")~funcall) ^^{
+	def product: Parser[Expression] = (funcall|term)~opt(("*" | "/")~product)^^{
 		case call1~None =>{
 			Product(call1)
 		}
@@ -95,6 +94,18 @@ class EwokParsers extends RegexParsers {
 			//Product(call1, call2)
 		}
 		case _ => throw new SyntaxException("Error")
+	}
+
+	def sum: Parser[Expression] = product~rep(("+" | "-")~product) ^^{
+		case p1 =>{
+			var args = List[Expression]()
+			for(x <- p1._2) args = args :+ x._2
+			println(args)
+			println(p1._1)
+			if(p1._2.size == 0) Sum(p1._1)
+			else Sum(p1._1, args)
+		}
+		//case _ => throw new SyntaxException("Error")
 	}
 
 	/*
@@ -118,38 +129,10 @@ class EwokParsers extends RegexParsers {
 		}
 	}
 */
-/*
-
-/*
-	def funcall: Parser[Expression] = (identifier | literal)~opt(operator~funcall) ^^{
-		case arg1~None =>{
-			arg1
-		}
-
-		case arg1~Some(additional) =>{
-			var args = List[Expression]()
-			val op = additional._1
-			val arg2 = additional._2
-			args = args :+ arg1
-			args = args :+ arg2
-			Funcall(op, args)
-		}
-		case _ =>{
-			throw new SyntaxException("RIP")
-		}
-	}*/
-
-	def operator: Parser[Identifier] = "\\/|\\*|\\+|\\-".r ^^{
-		case "+" => Identifier("add")
-		case "*" => Identifier("mul")
-		case "/" => Identifier("div")
-		case "-" => Identifier("sub")
-	}
-
 
 /*
 	def disjunction: Parser[Expression] = conjuction ~ rep("||" ~ conjuction ) ^^{
 		case con ~ Nil => con
 		case con ~ cons => Disjunction(con::cons) // adds con to cons beginning of list
 	}*/
-}*/}
+}
