@@ -11,7 +11,9 @@ object JediException{
 	def apply(gripe: String) = new JediException(gripe)
 }
 
-class UndefinedException(name: String) extends JediException("Unidentified identifier: " + name)
+class UndefinedException(name: String) extends JediException("Unidentified identifier: " + name){
+	override def toString = "Undefined Identifier: " + name
+}
 
 object UndefinedException{
 	def apply(name: String) = new UndefinedException(name)
@@ -39,7 +41,7 @@ class EwokParsers extends RegexParsers {
 
 	def term: Parser[Expression] =  literal | identifier | paren
 
-	def expression: Parser[Expression] =  declaration | conditional | equality | inequality |  funcall | sum | product | term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
+	def expression: Parser[Expression] =  declaration | conditional | conjunction | equality | inequality | sum | product | funcall |  term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
 
 	def literal: Parser[Literal] = boole | number
 
@@ -121,7 +123,7 @@ class EwokParsers extends RegexParsers {
 		case _ => throw new SyntaxException("invalid paren + param")
 	}
 
-	def conditional: Parser[Conditional] = "if"~"("~(equality | inequality)~")"~expression~opt("else"~expression) ^^{
+	def conditional: Parser[Conditional] = "if"~"("~(conjunction)~")"~expression~opt("else"~expression) ^^{
 		case "if"~"("~exp1~")"~exp2~None=>{
 			Conditional(exp1, exp2)
 		}
@@ -137,18 +139,19 @@ class EwokParsers extends RegexParsers {
 		}
 	}
 
-
-	def inequality: Parser[Inequality] = sum~("<" | ">")~sum ^^{
-		case s1~"<"~s2=>{
-			Inequality(s1, s2, Identifier("<"))
+	def inequality: Parser[Inequality] = sum~opt(("<" | ">")~sum) ^^{
+		case s1~Some(content)=>{
+			Inequality(s1, content._2, Identifier(content._1))
 		}
-		case s1~">"~s2=>{
-			Inequality(s1, s2, Identifier(">"))
-		}		case _ => throw new SyntaxException("Error")
+		case s1~None=>{
+			Inequality(s1)
+		}
+		case _ => throw new SyntaxException("Error")
 	}
-/*
-	def disjunction: Parser[Expression] = conjuction ~ rep("||" ~ conjuction ) ^^{
-		case con ~ Nil => con
-		case con ~ cons => Disjunction(con::cons) // adds con to cons beginning of list
-	}*/
+	def conjunction: Parser[Expression] = (equality | inequality) ~ opt(("&&" | "||") ~ (conjunction)) ^^{
+		case tree1 ~ None => Conjunction(tree1)
+		case tree1 ~ Some("&&" ~ tree2) => Conjunction(tree1, tree2)
+		case tree1 ~ Some("||" ~ tree2) => Disjunction(tree1, tree2)
+		case _ => throw SyntaxException("Error")
+	}
 }

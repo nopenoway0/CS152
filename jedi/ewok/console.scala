@@ -50,7 +50,7 @@ object console{
                //println("token = " + e.result.next.first)
             }
             case u: UndefinedException => {
-               println("UndefinedException")
+               println(u)
             }
             case j: Exception => println("Fatal Error")
             // handle other types of exceptions

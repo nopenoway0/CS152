@@ -90,10 +90,6 @@ object alu{
 		nums2.reduce(_/_)
 	}
 	private def equals(args:List[Value]): Boole = {
-		//var nums = args.filter(_.isInstanceOf[Boole])
-		//if(nums.length != args.length)
-		//	throw new TypeException("Booles needed to compare")
-		//val nums2 = nums.map(_.asInstanceOf[Boole])
 		val nums2 = args
 		var matched = Boole.TRUE
 		var prev = args(0)

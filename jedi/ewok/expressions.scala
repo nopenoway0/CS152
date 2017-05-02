@@ -20,22 +20,18 @@ case class Declaration(val name: Identifier, val body: Expression) extends Speci
 	}
 }
 
-case class Disjunction(val exps:List[Expression]) extends SpecialForm{
+//case class Disjunction(val arg1: Expression, val arg2: List[Expression] = null) extends SpecialForm{
+case class Disjunction(val arg1: Expression, val arg2: Expression = null) extends SpecialForm{
 	def execute(env: Environment) = {
-		var result = Boole.FALSE
-		var more = Boole.TRUE
-		for(exp <- exps if more.value){
-			val arg = exp.execute(env)
-			if(!arg.isInstanceOf[Boole]) throw new TypeException("Must be Boole value")
-			// add other shortcircuiting and define type exception
-			val b = arg.asInstanceOf[Boole]
-			if(b.value){
-				result = Boole.TRUE
-				more = Boole.FALSE
+		val value = arg1.execute(env)
+		if(arg2 == null || value == Boole.TRUE) value
+		else if(!value.isInstanceOf[Boole]) throw new TypeException("Need Boolean for Disjunction")
+		else{
+			val value2 = arg2.execute(env)
+			if (!value2.isInstanceOf[Boole]) throw new TypeException("Need Boolean for Disjunction")
+			else value2.asInstanceOf[Boole] || value2.asInstanceOf[Boole]
 			}
 		}
-		result
-	}
 	
 }
 
@@ -48,13 +44,17 @@ case class Equality(val arg1: Expression, val arg2: Expression) extends SpecialF
 	}
 }
 
-case class Inequality(val arg1: Expression, val arg2: Expression, val operator: Identifier) extends SpecialForm{
+case class Inequality(val arg1: Expression, val arg2: Expression = null, val operator: Identifier = null) extends SpecialForm{
 	def execute(env: Environment) = {
 		val value = arg1.execute(env)
-		val value2 = arg2.execute(env)
-		operator.name match{
-			case "<" => value.asInstanceOf[Number] < value2.asInstanceOf[Number]
-			case ">" => value.asInstanceOf[Number] > value2.asInstanceOf[Number]
+		if(arg2 == null) value
+		else if (operator == null) throw new SyntaxException("Operator not specifed")
+		else{
+			val value2 = arg2.execute(env)
+			operator.name match{
+				case "<" => value.asInstanceOf[Number] < value2.asInstanceOf[Number]
+				case ">" => value.asInstanceOf[Number] > value2.asInstanceOf[Number]
+			}
 		}
 	}
 }
@@ -99,4 +99,17 @@ case class Sum(arg1: Expression, arg2: List[Expression] = null) extends Expressi
 case class Sub(arg1: Expression, arg2: List[Expression] = null) extends Expression {
    def execute(env: Environment) = 
      if (arg2 == null) arg1.execute(env) else arg1.execute(env).asInstanceOf[Number] - arg2.map(_.execute(env).asInstanceOf[Number]).reduce(_-_)
+}
+
+case class Conjunction(arg1: Expression, arg2: Expression = null) extends Expression{
+	def execute(env:Environment) = {
+		val value = arg1.execute(env)
+		if(arg2 == null || value == Boole.FALSE) value
+		else if(!value.isInstanceOf[Boole]) throw new TypeException("Need Boolean for Disjunction")
+		else{
+			val value2 = arg2.execute(env)
+			if(value2.isInstanceOf[Boole]) value.asInstanceOf[Boole] && value2.asInstanceOf[Boole]
+			else throw TypeException("Need Boole for Disjunction")
+		}
+	}
 }
