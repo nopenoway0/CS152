@@ -41,7 +41,7 @@ class EwokParsers extends RegexParsers {
 
 	def term: Parser[Expression] =  literal | identifier | paren
 
-	def expression: Parser[Expression] =  declaration | conditional | conjunction | equality | inequality | sum | product | funcall |  term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
+	def expression: Parser[Expression] =  declaration | conditional | disjunction | conjunction | equality | inequality | sum | product | funcall |  term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
 
 	def literal: Parser[Literal] = boole | number
 
@@ -148,10 +148,21 @@ class EwokParsers extends RegexParsers {
 		}
 		case _ => throw new SyntaxException("Error")
 	}
+	def disjunction: Parser[Expression] = conjunction ~opt("||"~(disjunction)) ^^{
+		case tree1 ~ None => Disjunction(tree1)
+		case tree1 ~ Some("||" ~ tree2) => Disjunction(tree1, tree2)
+		case _ => throw new SyntaxException("Error")
+	}
+	def conjunction: Parser[Expression] = (equality | inequality) ~ opt(("&&") ~ (conjunction)) ^^{
+		case tree1 ~ None => Conjunction(tree1)
+		case tree1 ~ Some("&&" ~ tree2) => Conjunction(tree1, tree2)
+		case _ => throw new SyntaxException("Error")
+	}
+	/*
 	def conjunction: Parser[Expression] = (equality | inequality) ~ opt(("&&" | "||") ~ (conjunction)) ^^{
 		case tree1 ~ None => Conjunction(tree1)
 		case tree1 ~ Some("&&" ~ tree2) => Conjunction(tree1, tree2)
 		case tree1 ~ Some("||" ~ tree2) => Disjunction(tree1, tree2)
 		case _ => throw SyntaxException("Error")
-	}
+	}*/
 }
