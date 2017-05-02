@@ -9,6 +9,7 @@ trait Value extends java.io.Serializable
 case class Boole(val value: Boolean) extends Literal{
 	def &&(other: Boole) = Boole(this.value && other.value)
 	def ||(other: Boole) = Boole(this.value || other.value)
+	override def toString = value.toString
 }
 
 object Boole{

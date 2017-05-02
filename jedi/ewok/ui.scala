@@ -36,9 +36,10 @@ object SyntaxException{
 }
 
 class EwokParsers extends RegexParsers {
-	def term: Parser[Expression] =  literal | identifier// | expression
 
-	def expression: Parser[Expression] =  declaration | conditional | equality | inequality | sum | product | term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
+	def term: Parser[Expression] =  literal | identifier | paren
+
+	def expression: Parser[Expression] =  declaration | conditional | equality | inequality |  funcall | sum | product | term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
 
 	def literal: Parser[Literal] = boole | number
 
@@ -75,7 +76,7 @@ class EwokParsers extends RegexParsers {
 
 	def funcall: Parser[Expression] = term~"("~opt(operands)~")" ^^{
 		case id~"("~None~")"=>{
-			throw new SyntaxException("Error")
+			throw new SyntaxException("Empty Function Call: " + id)
 		}
 		case id~"("~Some(exp)~")"=>{
 			Funcall(id.asInstanceOf[Identifier], exp)
@@ -96,7 +97,7 @@ class EwokParsers extends RegexParsers {
 		case _ => throw new SyntaxException("Error")
 	}
 
-	def sum: Parser[Expression] = product~rep(("+" | "-")~product) ^^{
+	def sum: Parser[Expression] = product~rep(("+" | "-")~(product)) ^^{
 		case call1~list =>list.foldLeft(call1){
 			case (x, "+" ~ y)=>{
 				var arg = List[Expression]()
@@ -111,6 +112,13 @@ class EwokParsers extends RegexParsers {
 			}
 		}
 		//case _ => throw new SyntaxException("Error")
+	}
+
+	def paren: Parser[Expression] = "("~sum~")" ^^{
+		case "("~s1~")" =>{
+			s1
+		}
+		case _ => throw new SyntaxException("invalid paren + param")
 	}
 
 	def conditional: Parser[Conditional] = "if"~"("~(equality | inequality)~")"~expression~opt("else"~expression) ^^{
