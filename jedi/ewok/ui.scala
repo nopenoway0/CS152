@@ -1,7 +1,7 @@
 package ui
 //
 // package system?
-import scala.util.parsing.combinator._ // for the parser. Add external jars. Build into make file. link to the jar library
+import scala.util.parsing.combinator._
 import expression._
 import value._
 
@@ -18,7 +18,9 @@ object UndefinedException{
 }
 
 // Incomplete
-class TypeException(gripe: String) extends JediException(gripe)
+class TypeException(gripe: String) extends JediException(gripe){
+	def msg = gripe
+}
 
 object TypeException{
 	def apply(gripe: String) = new TypeException(gripe)
@@ -33,11 +35,10 @@ object SyntaxException{
 	def apply(gripe: String) = new SyntaxException(gripe)
 }
 
-
 class EwokParsers extends RegexParsers {
-	def term: Parser[Expression] =  literal | identifier | expression
+	def term: Parser[Expression] =  literal | identifier// | expression
 
-	def expression: Parser[Expression] = declaration | inequality | equality | sum | product | funcall// | funcall | failure("Error")
+	def expression: Parser[Expression] =  declaration | sum | product | term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
 
 	def literal: Parser[Literal] = boole | number
 
@@ -53,8 +54,8 @@ class EwokParsers extends RegexParsers {
 		case "def"~id~"="~exp => Declaration(id, exp)
 	}
 
-	def identifier: Parser[Identifier] = """[a-zA-Z][a-zA-Z0-9]*""".r ^^{
-		case someString=>Identifier(someString)
+	def identifier: Parser[Identifier] = """[a-zA-Z]+[a-zA-Z0-9]*""".r ^^{
+		case someString=> Identifier(someString)
 	}
 
 	def operands: Parser[List[Expression]] = expression ~ opt((","~operands)) ^^{
@@ -82,16 +83,15 @@ class EwokParsers extends RegexParsers {
 		case _ => throw new SyntaxException("Error")
 	}
 
-	def product: Parser[Expression] = (funcall|term)~opt(("*" | "/")~product)^^{
+	def product: Parser[Expression] = /*(funcall|term)*/term~opt(("*" | "/")~product)^^{
 		case call1~None =>{
 			Product(call1)
 		}
-		case call1~Some(m)=>{
-			var arg = List[Expression]()
-			arg = arg :+ m._2
-			if(m._1 == "*") Product(call1, arg)
-			else Divisor(call1, arg)
-			//Product(call1, call2)
+		case term~Some(terms)=>{
+			var args = List[Expression]()
+			args = args :+ terms._2
+			if(terms._1 == "/") Divisor(term, args)
+			else Product(term, args)
 		}
 		case _ => throw new SyntaxException("Error")
 	}
@@ -106,6 +106,7 @@ class EwokParsers extends RegexParsers {
 			case (x, "-" ~ y)=>{
 				var arg = List[Expression]()
 				arg = arg :+ y
+				if(arg.size == 0) throw new SyntaxException("Need Operand")
 				Sub(x,arg)
 			}
 		}

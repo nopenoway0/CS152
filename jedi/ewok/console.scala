@@ -2,6 +2,7 @@ import ui._
 import value._
 import expression._
 import java.util.Scanner
+import scala.util.parsing.combinator._
 // Console object
 // 
 object console{
@@ -12,8 +13,8 @@ object console{
    def execute(cmmd: String): String = {
       val tree = parsers.parseAll(parsers.expression, cmmd)
       tree match {
-         //case t: Parsers.Failure => print("ERROR")
-         case _ => {
+         case t: parsers.Failure => throw new SyntaxException(t.msg)
+         case _ => { 
             val exp = tree.get  // get the expression from the tree
             val result = exp.execute(globalEnv)  // execute the expression
             result.toString  // return string representation of result
@@ -31,18 +32,27 @@ object console{
             // read/execute/print
             print("-> ")
             cmmd = scala.io.StdIn.readLine()
+            //cmmd = cmmd.trim
+            if(cmmd == "quit"){
+               more = false
+               cmmd = ""
+            }
             // handle meta-commands
-            if(cmmd.size > 0)println(execute(cmmd))
+            if(cmmd.size > 0) println(execute(cmmd))
          } 
          catch {
-         	case e: Exception => println(e.toString)
-            /*case e: SyntaxException => {
+            case t: TypeException => println(t.msg)
+            case e: SyntaxException => {
                println(e.msg)
-               println(e.result.msg)
-               println("line # = " + e.result.next.pos.line)
-               println("column # = " + e.result.next.pos.column)
-               println("token = " + e.result.next.first)
-            }*/
+               //println(e.result.msg)
+               //println("line # = " + e.result.next.pos.line)
+               //println("column # = " + e.result.next.pos.column)
+               //println("token = " + e.result.next.first)
+            }
+            case u: UndefinedException => {
+               println("UndefinedException")
+            }
+            case j: Exception => println("Fatal Error")
             // handle other types of exceptions
          } finally {
             Console.flush 
