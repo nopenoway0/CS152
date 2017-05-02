@@ -38,7 +38,7 @@ object SyntaxException{
 class EwokParsers extends RegexParsers {
 	def term: Parser[Expression] =  literal | identifier// | expression
 
-	def expression: Parser[Expression] =  declaration | sum | product | term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
+	def expression: Parser[Expression] =  declaration | conditional | equality | inequality | sum | product | term//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
 
 	def literal: Parser[Literal] = boole | number
 
@@ -112,8 +112,8 @@ class EwokParsers extends RegexParsers {
 		}
 		//case _ => throw new SyntaxException("Error")
 	}
-/*
-	def conditional: Parser[Conditional] = "if"~"("~expression~")"~expression~opt("else"~expression) ^^{
+
+	def conditional: Parser[Conditional] = "if"~"("~(equality | inequality)~")"~expression~opt("else"~expression) ^^{
 		case "if"~"("~exp1~")"~exp2~None=>{
 			Conditional(exp1, exp2)
 		}
@@ -122,8 +122,8 @@ class EwokParsers extends RegexParsers {
 		}
 		case _ => throw new SyntaxException("Error")
 	}
-*/
-	def equality: Parser[Equality] = inequality~"=="~inequality ^^{
+
+	def equality: Parser[Equality] = (inequality | term)~"=="~(inequality | term) ^^{
 		case arg1~"=="~arg2=>{
 			Equality(arg1, arg2)
 		}
