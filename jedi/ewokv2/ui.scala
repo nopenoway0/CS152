@@ -195,7 +195,7 @@ class WookieParsers extends EwokParsers {
 	}
 	def lambda: Parser[Expression] = "lambda" ~ parameters ~ expression ^^{
 		case "lambda"~params~expressions =>{
-			Lambda(params, expressions, new Environment)
+			Lambda(params, expressions)
 		}
 		case _ => throw SyntaxException("incorrect syntax")
 	}

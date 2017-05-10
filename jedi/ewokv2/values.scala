@@ -105,15 +105,11 @@ class Environment(var extension: Environment = null) extends HashMap[Identifier,
 
 case class Closure(val params: List[Identifier], val body: Expression, val defEnv: Environment) extends Value {
    def apply(args: List[Value]): Value = {
-   		println("Closure called")
-   		val localEnv = new Environment
-   		defEnv.extension = localEnv
+   		val localEnv = new Environment(defEnv)
 	   	if(params.length != args.length) throw new UndefinedException("Invalid Environment")
-	 	for((x,y) <- (params zip args)){
-	 		localEnv.put(x, y)
-	 		if(y.isInstanceOf[Closure]) println("Closure found")
-	 	}
-	   	val result = body.execute(localEnv)
+	 	for((x,y) <- (params zip args)) localEnv.put(x, y)
+	   	var result = body.execute(localEnv)	   	
+	   	//if(result.isInstanceOf[Closure]) result = result.asInstanceOf[Closure].apply(args)
 	   	defEnv.extension = null
 	   	result
 	      //1. create localEnv extending defEnv // for static scope rule

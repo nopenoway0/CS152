@@ -118,20 +118,21 @@ case class Conjunction(arg1: Expression, arg2: Expression = null) extends Expres
 case class Block(val locals: List[Expression]) extends SpecialForm {
    def execute(env: Environment) = {
 	   	var lastVar = locals(locals.length - 1)
+	   	val currentEnv = new Environment(env)
 	   	for(x <- locals){
 	   		lastVar = x
-	 		x.execute(env)
+	 		x.execute(currentEnv)
 	   	}// Remove last local?
-	   	lastVar.execute(env)
+	   	lastVar.execute(currentEnv)
 	     // 2. for local in locals local.execute(localEnv)
 	     // 3. return last one
    }
 }
 
 
-case class Lambda(params:List[Identifier], body:Expression, env:Environment)  extends SpecialForm {
+case class Lambda(params:List[Identifier], body:Expression)  extends SpecialForm {
    def execute(env: Environment) = {
-      Closure(params, body, env)
+    	Closure(params, body, env)
    }
 }	
 
