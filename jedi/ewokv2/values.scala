@@ -109,8 +109,6 @@ case class Closure(val params: List[Identifier], val body: Expression, val defEn
 	   	if(params.length != args.length) throw new UndefinedException("Invalid Environment")
 	 	for((x,y) <- (params zip args)) localEnv.put(x, y)
 	   	var result = body.execute(localEnv)	   	
-	   	//if(result.isInstanceOf[Closure]) result = result.asInstanceOf[Closure].apply(args)
-	   	defEnv.extension = null
 	   	result
 	      //1. create localEnv extending defEnv // for static scope rule
 	      //2. bind params to args in localEnv
