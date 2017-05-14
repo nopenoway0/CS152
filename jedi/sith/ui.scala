@@ -206,11 +206,12 @@ class WookieParsers extends EwokParsers {
 }
 
 class SithParsers extends WookieParsers{
-	override def term: Parser[Expression] =  deref | assignment | lambda |block | literal | identifier | paren
+	override def term: Parser[Expression] =  deref | lambda |block | literal | identifier | paren
 
-	override def expression: Parser[Expression] = declaration | conditional | iteration | disjunction | conjunction | equality | inequality | sum | product | funcall | term | failure//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
+	override def expression: Parser[Expression] = declaration | conditional | assignment | iteration | disjunction | conjunction | equality | inequality | sum | product | funcall | term | failure//declaration | sum | product//|product/*inequality | equality | sum | product | funcall*/
 
-	def iteration: Parser[Iteration] = "while"~"("~>expression<~")"~expression ^^{
+	def iteration: Parser[Iteration] = "while"~"("~expression~")"~expression ^^{
+		case "while"~"("~cond~")"~exp => Iteration(cond, exp)
 		case _ => throw SyntaxException("Trash")
 	}
 

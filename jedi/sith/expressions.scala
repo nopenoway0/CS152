@@ -119,10 +119,9 @@ case class Block(val locals: List[Expression]) extends SpecialForm {
    def execute(env: Environment) = {
 	   	var lastVar = locals(locals.length - 1)
 	   	val currentEnv = new Environment(env)
-	   	for(x <- locals){
-	   		lastVar = x
-	 		x.execute(currentEnv)
-	   	}// Remove last local?
+	   	for(x <- 0 to locals.length - 2){
+	 		locals(x).execute(currentEnv)
+	   	}
 	   	lastVar.execute(currentEnv)
 	     // 2. for local in locals local.execute(localEnv)
 	     // 3. return last one
@@ -151,7 +150,12 @@ case class Funcall(val operator: Expression, val operands: List[Expression]) ext
 
 case class Iteration(val condition: Expression, val body: Expression) extends SpecialForm{
 	// temporary holdings
-	def execute(env: Environment) = Number(1) 
+	def execute(env: Environment) = {
+		val outcome_type = condition.execute(env)
+		if(!outcome_type.isInstanceOf[Boole]) throw SyntaxException("Condition " + outcome_type + " not a boole")
+		while(condition.execute(env).asInstanceOf[Boole].value) body.execute(env)
+		Notification.OK
+	}
 }
 
 case class Assignment(val update: Expression, val vbl: Identifier) extends SpecialForm{
